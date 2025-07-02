@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Flask-SocketIO-Chat: {{ room }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+  <script src="//code.jquery.com/jquery-1.4.2.min.js"></script>
+  <script src="//cdn.socket.io/4.4.1/socket.io.min.js"></script>
+<link
+  href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+  rel="stylesheet"
+/>
+
+  <script>
+    let socket;
+    $(function() {
+      socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+      socket.on('connect', () => socket.emit('joined', {}));
+      socket.on('status', data => updateChat(`[${new Date().toLocaleTimeString()}] <${data.msg}>`));
+      socket.on('message', data => updateChat(`[${new Date().toLocaleTimeString()}] ${data.msg}`));
+      $('#text').keypress(e => {
+        if ((e.keyCode||e.which) === 13) {
+          const text = $('#text').val();
+          $('#text').val('');
+          socket.emit('text', {msg: text});
+        }
+      });
+    });
+    function updateChat(line) {
+      const ta = $('#chat');
+      ta.val(ta.val() + line + "\n");
+      ta.scrollTop(ta[0].scrollHeight);
+    }
+    function leave_room() {
+      socket.emit('left', {}, () => {
+        socket.disconnect();
+        window.location.href = "{{ url_for('main.index') }}";
+      });
+    }
+  function copyLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url)
+      .then(() => {
+        const btn = document.getElementById('copyLinkBtn');
+        const old = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = old, 1500);
+      })
+      .catch(err => {
+        console.error('Failed to copy!', err);
+        alert('Error with copy link');
+      });
+  }
+  function githubLink() {
+       window.open('https://github.com/01cheese', '_blank');
+  }
+  </script>
+</head>
+<body>
+  <div class="card">
+    <div class="mac-header">
+      <span class="red" onclick="leave_room()" title="Leave room"></span>
+      <span class="yellow" onclick="copyLink()" title="Copy link"></span>
+      <span class="green" onclick="githubLink()" title="Github"></span>
+        <div class="card-title">Chat: {{ room }}</div>
+    </div>
+
+    <div class="code-editor">
+      <textarea id="chat" readonly></textarea>
+    </div>
+
+<div class="input-row">
+  <button class="btn leave-room" onclick="leave_room()">Leave room</button>
+  <button class="btn copy-link"  id="copyLinkBtn" onclick="copyLink()">Copy link</button>
+  <input id="text" maxlength="4096" placeholder="Write here..." />
+  <button class="btn send-msg"   onclick="$('#text').trigger({ type: 'keypress', which: 13 });">Send</button>
+</div>
+
+
+  </div>
+</body>
+</html>
