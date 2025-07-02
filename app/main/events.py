@@ -5,6 +5,7 @@ from .. import socketio
 
 @socketio.on('joined', namespace='/chat')
 def joined(message):
+    print(">>> joined called")
     room = session.get('room')
     join_room(room)
     emit('status', {
