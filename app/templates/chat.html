@@ -14,10 +14,8 @@
   <script>
     let socket;
     $(function() {
-     socket = io("https://chat-websocketio-flask.onrender.com", {
-  path: "/socket.io",
-  transports: ["websocket"]
-});
+     socket = io('/chat', { path: '/socket.io', transports: ['websocket'] });
+
 
       socket.on('connect', () => socket.emit('joined', {}));
       socket.on('status', data => updateChat(`[${new Date().toLocaleTimeString()}] <${data.msg}>`));
