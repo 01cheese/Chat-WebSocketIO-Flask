@@ -14,7 +14,7 @@
   <script>
     let socket;
     $(function() {
-      socket = io.connect('http://' + document.domain + ':' + location.port + '/chat');
+      socket = io({ path: '/socket.io', transports: ['websocket'] });
       socket.on('connect', () => socket.emit('joined', {}));
       socket.on('status', data => updateChat(`[${new Date().toLocaleTimeString()}] <${data.msg}>`));
       socket.on('message', data => updateChat(`[${new Date().toLocaleTimeString()}] ${data.msg}`));
