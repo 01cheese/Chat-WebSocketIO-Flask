@@ -33,4 +33,4 @@ def left(message):
     emit('status', {
         'msg': f"{session.get('name')} has left the room.",
     }, to=room)
-
+    return True
